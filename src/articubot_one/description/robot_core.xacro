@@ -4,16 +4,16 @@
     <xacro:include filename="inertial_macros.xacro"/>
 
 
-    <xacro:property name="chassis_length" value="0.2159"/>
+    <xacro:property name="chassis_length" value="0.22"/>
     <xacro:property name="chassis_width" value="0.1524"/>
     <xacro:property name="chassis_height" value="0.08255"/>
     <xacro:property name="chassis_mass" value="1.0"/>
-    <xacro:property name="wheel_radius" value="0.0381"/>
+    <xacro:property name="wheel_radius" value="0.04"/>
     <xacro:property name="wheel_thickness" value="0.01"/>
     <xacro:property name="wheel_mass" value="0.05"/>
-    <xacro:property name="wheel_offset_x" value="0.0254"/>
-    <xacro:property name="wheel_offset_y" value="0.1016"/>
-    <xacro:property name="wheel_offset_z" value="0.01"/>
+    <xacro:property name="wheel_offset_x" value="0.065"/>
+    <xacro:property name="wheel_offset_y" value="0.1038"/>
+    <xacro:property name="wheel_offset_z" value="0.02"/>
     <xacro:property name="caster_wheel_radius" value="0.015"/>
     <xacro:property name="caster_wheel_mass" value="0.01"/>
     <xacro:property name="caster_wheel_offset_x" value="0.175"/>
@@ -71,7 +71,7 @@
             <geometry>
                 <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
             </geometry>
-            <material name="orange"/>
+            <material name="white"/>
         </visual>
         <collision>
             <origin xyz="${chassis_length/2} 0 ${chassis_height/2}"/>
@@ -102,7 +102,7 @@
             <geometry>
                 <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
             </geometry>
-            <material name="blue"/>
+            <material name="black"/>
         </visual>
         <collision>
             <geometry>
@@ -135,7 +135,7 @@
             <geometry>
                 <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
             </geometry>
-            <material name="blue"/>
+            <material name="black"/>
         </visual>
         <collision>
             <geometry>
