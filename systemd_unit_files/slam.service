@@ -1,0 +1,21 @@
+[Unit]
+After=network-online.target
+Description=Online Async SLAM Service
+WorkingDirector=/home/eli
+User=eli
+Group=eli
+
+[Service]
+Environment="ROS_VERSION=2"
+Environment="ROS_PYTHON_VERSION=3"
+Environment="PYTHONPATH=/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages"
+Environment="LD_LIBRARY_PATH=/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib"
+Environment="AMENT_PREFIX_PATH=/opt/ros/humble"
+Environment="HOME=/eli/pi"
+ExecStart=/bin/bash -c 'source /opt/ros/humble/setup.bash; source /home/eli/ros2_bot/install/setup.bash; ros2 launch articubot_one online_async_launch.py'
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
