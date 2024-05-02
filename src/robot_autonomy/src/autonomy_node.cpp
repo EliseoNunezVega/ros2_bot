@@ -33,13 +33,21 @@ void AutonomyNode::create_behavior_tree()
 
   // register bt node
 
-  BT::NodeBuilder builder =
+  BT::NodeBuilder scan_builder =
       [=](const std::string &name, const BT::NodeConfiguration &config)
   {
-    return std::make_unique<GoToPose>(name, config, shared_from_this());
+    return std::make_unique<ScanForBall>(name, config, shared_from_this());
   };
 
-  factory.registerBuilder<GoToPose>("GoToPose", builder);
+  factory.registerBuilder<ScanForBall>("ScanForBall", scan_builder);
+
+  BT::NodeBuilder go_to_builder =
+      [=](const std::string &name, const BT::NodeConfiguration &config)
+  {
+    return std::make_unique<GetToBall>(name, config, shared_from_this());
+  };
+
+  factory.registerBuilder<ScanForBall>("GetToBall", go_to_builder);
 
   RCLCPP_INFO(get_logger(), bt_xml_dir.c_str());
 

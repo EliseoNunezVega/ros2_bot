@@ -2,10 +2,8 @@
 <root main_tree_to_execute = "MainTree" >
   <BehaviorTree ID="MainTree">
     <Sequence name="sequence">
-      <GoToPose name="go_to_location1" loc="location1" />
-      <GoToPose name="go_to_location2" loc="location2" />
-      <GoToPose name="go_to_location3" loc="location3" />
-      <GoToPose name="go_to_location4" loc="location4" />
+      <ScanForBall name="go_to_location1" loc="location1" />
+      <GetToBall name="go_to_location2" loc="location2" />
     </Sequence>
   </BehaviorTree>
 </root>

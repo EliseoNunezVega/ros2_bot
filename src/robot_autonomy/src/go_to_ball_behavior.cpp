@@ -1,22 +1,22 @@
-#include "navigation_behaviors.h"
+#include "go_to_ball_behavior.h"
 #include "yaml-cpp/yaml.h"
 #include <string>
 
-GoToPose::GoToPose(const std::string &name,
+GetToBall::GetToBall(const std::string &name,
                    const BT::NodeConfiguration &config,
                    rclcpp::Node::SharedPtr node_ptr)
     : BT::StatefulActionNode(name, config), node_ptr_(node_ptr)
 {
-  action_client_ptr_ = rclcpp_action::create_client<FindBall>(node_ptr_, "findball");
+  action_client_ptr_ = rclcpp_action::create_client<GoToBall>(node_ptr_, "gotoball");
   done_flag_ = false;
 }
 
-BT::PortsList GoToPose::providedPorts()
+BT::PortsList GetToBall::providedPorts()
 {
   return {BT::InputPort<std::string>("loc")};
 }
 
-BT::NodeStatus GoToPose::onStart()
+BT::NodeStatus GetToBall::onStart()
 {
 //   // Get location key from port and read YAML file
 //   BT::Optional<std::string> loc = getInput<std::string>("loc");
@@ -27,12 +27,12 @@ BT::NodeStatus GoToPose::onStart()
 //   std::vector<float> pose = locations[loc.value()].as<std::vector<float>>();
 
   // setup action client
-  auto send_goal_options = rclcpp_action::Client<FindBall>::SendGoalOptions();
-  send_goal_options.result_callback = std::bind(&GoToPose::nav_to_pose_callback, this, std::placeholders::_1);
+  auto send_goal_options = rclcpp_action::Client<GoToBall>::SendGoalOptions();
+  send_goal_options.result_callback = std::bind(&GetToBall::go_to_pose_callback, this, std::placeholders::_1);
 
 //   // make pose
-  auto goal_msg = FindBall::Goal();
-  goal_msg.order = 10;
+  auto goal_msg = GoToBall::Goal();
+  goal_msg.go_to_ball_true = 1;
 //   goal_msg.pose.header.frame_id = "map";
 //   goal_msg.pose.pose.position.x = pose[0];
 //   goal_msg.pose.pose.position.y = pose[1];
@@ -49,7 +49,7 @@ BT::NodeStatus GoToPose::onStart()
   return BT::NodeStatus::RUNNING;
 }
 
-BT::NodeStatus GoToPose::onRunning()
+BT::NodeStatus GetToBall::onRunning()
 {
   if (done_flag_)
   {
@@ -62,7 +62,7 @@ BT::NodeStatus GoToPose::onRunning()
   }
 }
 
-void GoToPose::nav_to_pose_callback(const GoalHandleNav::WrappedResult &result)
+void GetToBall::go_to_pose_callback(const GoalHandleNav::WrappedResult &result)
 {
   // If there is a result, we consider navigation completed.
   // bt_navigator only sends an empty message without status. Idk why though.

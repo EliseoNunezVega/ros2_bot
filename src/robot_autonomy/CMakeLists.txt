@@ -24,7 +24,8 @@ DESTINATION share/${PROJECT_NAME}
 
 # Install C++ behaviors
 set(BEHAVIOR_SOURCES
-src/navigation_behaviors.cpp 
+src/scan_behavior.cpp 
+src/go_to_ball_behavior.cpp
 )
 
 set(TARGET_DEPENDS
