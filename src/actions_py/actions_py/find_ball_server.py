@@ -38,7 +38,7 @@ class FindBallServer(Node):
         self.declare_parameter("x_max",100)
         self.declare_parameter("y_min",0)
         self.declare_parameter("y_max",100)
-        self.declare_parameter("h_min",27)
+        self.declare_parameter("h_min",22)
         self.declare_parameter("h_max",75)
         self.declare_parameter("s_min",31)
         self.declare_parameter("s_max",255)
