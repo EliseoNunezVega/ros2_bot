@@ -54,7 +54,7 @@ class FindBallServer(Node):
             msg.linear.x = 0.0
 
         elif not self.ball_found:
-            msg.angular.z = 1.0
+            msg.angular.z = 0.7
             msg.linear.x = 0.0
             result.sequence = [0,0]
 
