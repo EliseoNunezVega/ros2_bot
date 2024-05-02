@@ -38,11 +38,11 @@ class FindBallServer(Node):
         self.declare_parameter("x_max",100)
         self.declare_parameter("y_min",0)
         self.declare_parameter("y_max",100)
-        self.declare_parameter("h_min",22)
+        self.declare_parameter("h_min",24)
         self.declare_parameter("h_max",75)
-        self.declare_parameter("s_min",31)
+        self.declare_parameter("s_min",35)
         self.declare_parameter("s_max",255)
-        self.declare_parameter("v_min",21)
+        self.declare_parameter("v_min",0)
         self.declare_parameter("v_max",255)
         self.declare_parameter("sz_min",4)
         self.declare_parameter("sz_max",82)
@@ -122,7 +122,7 @@ class FindBallServer(Node):
 
         if not self.ball_found:
             msg = Twist()
-            msg.angular.z = 1.0
+            msg.angular.z = 0.5
             msg.linear.x = 0.0
             self.msg_publisher.publish(msg)
             result.sequence = [0,0]
