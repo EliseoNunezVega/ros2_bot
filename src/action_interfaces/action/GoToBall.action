@@ -1,0 +1,8 @@
+# Goal
+bool go_to_ball_true
+---
+# Result
+bool at_ball
+---
+# Feedback
+int32 z_distance
