@@ -63,8 +63,8 @@ class GoToBallServer(Node):
                 msg.linear.x = 0.1
                 self.get_logger().info('Moving towards ball in Z...')
             if abs(x_offset) > self.max_x_offset:
-                self.get_logger().info('Moving towards ball in X...')
                 msg.angular.z = -x_offset * self.xP
+                self.get_logger().info(f'Moving towards ball in X...{msg.angular.z}')
 
         self.msg_publisher.publish(msg)
         goal_handle.succeed()
