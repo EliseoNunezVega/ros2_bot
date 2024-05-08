@@ -17,9 +17,8 @@ from rclpy.node import Node
 from sensor_msgs.msg        import Image
 from geometry_msgs.msg      import Point
 from cv_bridge              import CvBridge, CvBridgeError
-import ball_tracker.process_image as proc
-import py_trees_ros
-import py_trees
+import get_ball_coordinates.process_image as proc
+
 
 class DetectBall(Node):
 
@@ -46,7 +45,7 @@ class DetectBall(Node):
         self.declare_parameter("v_max",255)
         self.declare_parameter("sz_min",6)
         self.declare_parameter("sz_max",82)
-        
+
         self.tuning_mode = self.get_parameter('tuning_mode').get_parameter_value().bool_value
         self.tuning_params = {
             'x_min': self.get_parameter('x_min').get_parameter_value().integer_value,
@@ -99,15 +98,15 @@ class DetectBall(Node):
 
                 self.get_logger().info(f"Pt {i}: ({x},{y},{s})")
 
-                if (s > point_out.z):                    
+                if (s > point_out.z):
                     point_out.x = x
                     point_out.y = y
                     point_out.z = s
 
             if (point_out.z > 0):
-                self.ball_pub.publish(point_out) 
+                self.ball_pub.publish(point_out)
         except CvBridgeError as e:
-            print(e)  
+            print(e)
 
 
 
@@ -126,7 +125,7 @@ def main(args=None):
     #     )
     # except Exception as e:
     #     print(e)
-        
+
     rclpy.spin(detect_ball)
     while rclpy.ok():
         rclpy.spin_once(detect_ball)
