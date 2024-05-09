@@ -68,7 +68,6 @@ class GoToBallServer(Node):
 
         if (abs(x_offset) < self.max_x_offset):
             self.msg.angular.z = 0.0
-            result.at_ball = True
         else:
             self.msg.angular.z = -x_offset * self.xP
             self.get_logger().info(f'Moving towards ball in X...{self.msg.angular.z}')

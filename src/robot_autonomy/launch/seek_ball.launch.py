@@ -28,6 +28,12 @@ def generate_launch_description():
         parameters=[],
     )
 
+    detect_ball_threed = Node(
+        package="get_ball_coordinates",
+        executable="detect3d",
+        parameters=[],
+    )
+
     autonomy_node_cmd = Node(
       package="robot_autonomy",
       executable="autonomy_node",
@@ -41,6 +47,7 @@ def generate_launch_description():
         find_ball_server,
         go_to_ball_server,
         detect_ball,
+        detect_ball_threed,
         autonomy_node_cmd
         # twist_stamper
     ])

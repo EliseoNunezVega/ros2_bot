@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'detect = get_ball_coordinates.detect_ball:main',
+            'detect3d = get_ball_coordinates.detect_ball3d:main'
         ],
     },
 )
