@@ -34,7 +34,7 @@ class FindBallServer(Node):
         self.msg_timer = self.create_timer(0.1, self.send_message, callback_group=self.cb_group_ )
 
         self.ball_found  = False
-        self.scan_speed = 0.8
+        self.scan_speed = 0.5
         self.msg = Twist()
 
         self.first_time = True

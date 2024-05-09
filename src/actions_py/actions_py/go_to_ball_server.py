@@ -61,7 +61,7 @@ class GoToBallServer(Node):
             self.msg.linear.x = 0.0
             result.at_ball = True
         else:
-            self.msg.linear.x = 0.3 #z_offset * self.zP
+            self.msg.linear.x = 0.2 #z_offset * self.zP
             self.get_logger().info(f"Z_Offset: {z_offset}!!!!!!!!!!!!")
             self.get_logger().info('Moving towards ball in Z...')
 
