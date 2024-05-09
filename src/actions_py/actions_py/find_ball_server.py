@@ -31,8 +31,20 @@ class FindBallServer(Node):
 
         self.image_sub = self.create_subscription(Point,"/detected_ball",self.detection_callback,callback_group=self.cb_group_, qos_profile=rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value)
         self.msg_publisher = self.create_publisher(Twist, '/cmd_vel', 40)
+        self.msg_timer = self.create_timer(0.1, self.send_message, callback_group=self.cb_group_ )
 
         self.ball_found  = False
+        self.scan_speed = 0.8
+        self.msg = Twist()
+
+        self.first_time = True
+
+
+    def send_message(self):
+        self.msg_publisher.publish(self.msg)
+        if self.ball_found:
+            self.msg_timer.destroy()
+            self.first_time = True
 
 
     def detection_callback(self, data):
@@ -40,34 +52,29 @@ class FindBallServer(Node):
         global ball_coordinates
         ball_coordinates = data
         self.ball_found = True
-    
+
 
     def execute_callback(self, goal_handle):
-
         self.get_logger().info('Scanning for ball...')
         result = FindBall.Result()
-        msg = Twist()
 
         if self.ball_found:
             result.sequence = [1,1]
-            msg.angular.z = 0.0
-            msg.linear.x = 0.0
+            self.msg.angular.z = 0.0
+            self.msg.linear.x = 0.0
 
         elif not self.ball_found:
-            msg.angular.z = 0.7
-            msg.linear.x = 0.0
+            self.msg.angular.z = self.scan_speed
+            self.msg.linear.x = 0.0
             result.sequence = [0,0]
 
-        self.msg_publisher.publish(msg)
-
-        
 
         goal_handle.succeed()
-           
+
         self.ball_found = False
 
         return result
-    
+
 
 
 def main(args=None):

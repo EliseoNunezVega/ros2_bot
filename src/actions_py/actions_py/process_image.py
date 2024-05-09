@@ -13,27 +13,27 @@ def find_circles(image, tuning_params):
     x_max   = tuning_params["x_max"]
     y_min   = tuning_params["y_min"]
     y_max   = tuning_params["y_max"]
-    
+
     search_window = [x_min, y_min, x_max, y_max]
 
     working_image    = cv2.blur(image, (blur, blur))
 
     #- Blur image to remove noise
-    # if blur > 0: 
+    # if blur > 0:
     #     image    = cv2.blur(image, (blur, blur))
     #     #- Show result
     #     if imshow:
     #         cv2.imshow("Blur", image)
     #         cv2.waitKey(0)
-        
+
     #- Search window
     if search_window is None: search_window = [0.0, 0.0, 1.0, 1.0]
     search_window_px = convert_rect_perc_to_pixels(search_window, image)
-    
-    
+
+
     #- Convert image from BGR to HSV
-    working_image     = cv2.cvtColor(working_image, cv2.COLOR_BGR2HSV)    
-    
+    working_image     = cv2.cvtColor(working_image, cv2.COLOR_BGR2HSV)
+
     #- Apply HSV threshold
     thresh_min = (tuning_params["h_min"], tuning_params["s_min"], tuning_params["v_min"])
     thresh_max = (tuning_params["h_max"], tuning_params["s_max"], tuning_params["v_max"])
@@ -43,7 +43,7 @@ def find_circles(image, tuning_params):
     # Dilate and Erode
     working_image = cv2.dilate(working_image, None, iterations=2)
     working_image = cv2.erode(working_image, None, iterations=2)
-    
+
 
     # Make a copy of the image for tuning
     tuning_image = cv2.bitwise_and(image,image,mask = working_image)
@@ -58,24 +58,24 @@ def find_circles(image, tuning_params):
 
     # Set up the SimpleBlobdetector with default parameters.
     params = cv2.SimpleBlobDetector_Params()
-        
+
     # Change thresholds
     params.minThreshold = 0
     params.maxThreshold = 100
-        
+
     # Filter by Area.
     params.filterByArea = True
     params.minArea = 30
     params.maxArea = 160000#300000
-        
+
     # Filter by Circularity
     params.filterByCircularity = True
     params.minCircularity = 0.08
-        
+
     # Filter by Convexity
     params.filterByConvexity = True
     params.minConvexity = 0.4
-        
+
     # Filter by Inertia
     params.filterByInertia =True
     params.minInertiaRatio = 0.5
@@ -90,7 +90,7 @@ def find_circles(image, tuning_params):
 
     keypoints = [k for k in keypoints if k.size > size_min_px and k.size < size_max_px]
 
-    
+
     # Set up main output image
     line_color=(0,0,255)
 
@@ -98,7 +98,7 @@ def find_circles(image, tuning_params):
     out_image = draw_window2(out_image, search_window_px)
 
     # Set up tuning output image
-    
+
     tuning_image = cv2.drawKeypoints(tuning_image, keypoints, np.array([]), line_color, cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     # tuning_image = draw_window(tuning_image, search_window)
     # cv2.rectangle(image,(x_min_px,y_min_px),(x_max_px,y_max_px),color,line)
@@ -118,14 +118,14 @@ def apply_search_window(image, window_adim=[0.0, 0.0, 1.0, 1.0]):
     x_min_px    = int(cols*window_adim[0]/100)
     y_min_px    = int(rows*window_adim[1]/100)
     x_max_px    = int(cols*window_adim[2]/100)
-    y_max_px    = int(rows*window_adim[3]/100)    
-    
+    y_max_px    = int(rows*window_adim[3]/100)
+
     #--- Initialize the mask as a black image
     mask = np.zeros(image.shape,np.uint8)
-    
+
     #--- Copy the pixels from the original image corresponding to the window
-    mask[y_min_px:y_max_px,x_min_px:x_max_px] = image[y_min_px:y_max_px,x_min_px:x_max_px]   
-    
+    mask[y_min_px:y_max_px,x_min_px:x_max_px] = image[y_min_px:y_max_px,x_min_px:x_max_px]
+
     #--- return the mask
     return(mask)
 
@@ -137,7 +137,7 @@ def draw_window2(image,              #- Input image
                 color=(255,0,0),    #- line's color
                 line=5,             #- line's thickness
                ):
-    
+
     #-- Draw a rectangle from top left to bottom right corner
 
     return cv2.rectangle(image,(rect_px[0],rect_px[1]),(rect_px[2],rect_px[3]),color,line)
@@ -149,11 +149,11 @@ def convert_rect_perc_to_pixels(rect_perc, image):
 
     scale = [cols, rows, cols, rows]
 
-    
+
     # x_min_px    = int(cols*window_adim[0])
     # y_min_px    = int(rows*window_adim[1])
     # x_max_px    = int(cols*window_adim[2])
-    # y_max_px    = int(rows*window_adim[3]) 
+    # y_max_px    = int(rows*window_adim[3])
     return [int(a*b/100) for a,b in zip(rect_perc, scale)]
 
 
