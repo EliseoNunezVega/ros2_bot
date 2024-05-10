@@ -4,22 +4,23 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 from sensor_msgs.msg        import Image
-from geometry_msgs.msg      import Point
+from geometry_msgs.msg      import Point, PoseStamped
 from cv_bridge              import CvBridge, CvBridgeError
 from geometry_msgs.msg import Twist
 import time
 import actions_py.process_image as proc
-
+from nav2_simple_commander.robot_navigator import BasicNavigator
 
 from action_interfaces.action import GoToBall
 
 
 class GoToBallServer(Node):
 
-    def __init__(self):
+    def __init__(self, navigator):
         super().__init__('go_to_ball_pose_server')
         self.cb_group_ = ReentrantCallbackGroup()
 
+        self.navigator = navigator
         self._action_server = ActionServer(
             self,
             GoToBall,
@@ -81,8 +82,15 @@ class GoToBallServer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
+    navigator = BasicNavigator()
+    initial_pose = PoseStamped()
+    initial_pose.header
+    initial_pose.pose.orientation =
+    navigator.setInitialPose(initial_pose)
 
-    find_ball_action_server = GoToBallServer()
+    navigator.waitUntilNav2Active()
+
+    find_ball_action_server = GoToBallServer(navigator=navigator)
     executor = MultiThreadedExecutor()
     executor.add_node(find_ball_action_server)
     executor.spin()

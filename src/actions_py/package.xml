@@ -9,6 +9,7 @@
 
   <depend>rclpy</depend>
   <depend>action_interfaces</depend>
+  <depend>nav2_basic_navigator></depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
