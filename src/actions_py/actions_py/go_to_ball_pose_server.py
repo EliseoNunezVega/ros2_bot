@@ -12,6 +12,33 @@ import actions_py.process_image as proc
 from nav2_simple_commander.robot_navigator import BasicNavigator
 
 from action_interfaces.action import GoToBall
+from turtle_tf2_py.turtle_tf2_broadcaster import quaternion_from_euler
+
+import math
+import numpy as np
+
+def quaternion_from_euler(ai, aj, ak):
+    ai /= 2.0
+    aj /= 2.0
+    ak /= 2.0
+    ci = math.cos(ai)
+    si = math.sin(ai)
+    cj = math.cos(aj)
+    sj = math.sin(aj)
+    ck = math.cos(ak)
+    sk = math.sin(ak)
+    cc = ci*ck
+    cs = ci*sk
+    sc = si*ck
+    ss = si*sk
+
+    q = np.empty((4, ))
+    q[0] = cj*sc - sj*cs
+    q[1] = cj*ss + sj*cc
+    q[2] = cj*cs - sj*sc
+    q[3] = cj*cc + sj*ss
+
+    return q
 
 
 class GoToBallServer(Node):
@@ -38,6 +65,7 @@ class GoToBallServer(Node):
         self.max_x_offset = 0.3
         self.xP = 0.3
         self.zP = 0.4
+        self.first_pose = True
 
         self.msg = Twist()
 
@@ -46,34 +74,37 @@ class GoToBallServer(Node):
 
     def detection_callback(self, data):
         # Process incoming images
-        self.ball_coordinates = data
-        self.ball_found = True
+        if self.first_pose:
+            self.ball_coordinates = data
+            self.ball_found = True
+            self.first_pose = False
 
 
     def execute_callback(self, goal_handle):
-        self.msg = Twist()
         result = GoToBall.Result()
-
-        x_offset = self.ball_coordinates.x - self.target_x
-        z_offset = abs(self.ball_coordinates.z) - self.desired_z_distance
-
-        if (abs(self.ball_coordinates.z) >= self.desired_z_distance):
-            self.get_logger().info("Ball is close enough")
-            self.msg.linear.x = 0.0
-            result.at_ball = True
-        else:
-            self.msg.linear.x = 0.2 #z_offset * self.zP
-            self.get_logger().info(f"Z_Offset: {z_offset}!!!!!!!!!!!!")
-            self.get_logger().info('Moving towards ball in Z...')
-
-
-        if (abs(x_offset) < self.max_x_offset):
-            self.msg.angular.z = 0.0
-        else:
-            self.msg.angular.z = -x_offset * self.xP
-            self.get_logger().info(f'Moving towards ball in X...{self.msg.angular.z}')
+        
+        pose = PoseStamped()
+        pose.header.frame_id = "camera_link"
+        pose.pose.position.x = 0.80#self.ball_coordinates.x
+        pose.pose.position.y = 0.4#self.ball_coordinates.y
+        pose.pose.position.z = 0.0#self.ball_coordinates.z
+        (x, y, z, w) = quaternion_from_euler(0.0, 0.0, 0.0)
+        pose.pose.orientation.x = x
+        pose.pose.orientation.y = y
+        pose.pose.orientation.z = z
+        pose.pose.orientation.w = w
+        pose.header.stamp = self.get_clock().now().to_msg()
 
 
+        self.navigator.goToPose(pose)
+
+        while not self.navigator.isTaskComplete():
+            feedback = self.navigator.getFeedback()
+            self.get_logger().info(f'Goal pose: {pose}')
+        
+        self.first_pose = True
+        result.at_ball = True
+    
         goal_handle.succeed()
 
         return result
@@ -83,12 +114,23 @@ class GoToBallServer(Node):
 def main(args=None):
     rclpy.init(args=args)
     navigator = BasicNavigator()
+
+    # Setting up initial pose
     initial_pose = PoseStamped()
-    initial_pose.header
-    initial_pose.pose.orientation =
+    initial_pose.header.frame_id = "camera_link"
+    initial_pose.pose.position.x = 0.0
+    initial_pose.pose.position.y = 0.0
+    initial_pose.pose.position.z = 0.0
+    (x, y, z, w) = quaternion_from_euler(0.0, 0.0, 0.0)
+    initial_pose.pose.orientation.x = x
+    initial_pose.pose.orientation.y = y
+    initial_pose.pose.orientation.z = z
+    initial_pose.header.stamp = navigator.get_clock().now().to_msg()
+
+    initial_pose.pose.orientation.w = w
     navigator.setInitialPose(initial_pose)
 
-    navigator.waitUntilNav2Active()
+    # navigator.waitUntilNav2Active()
 
     find_ball_action_server = GoToBallServer(navigator=navigator)
     executor = MultiThreadedExecutor()

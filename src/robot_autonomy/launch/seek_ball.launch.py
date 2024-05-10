@@ -18,7 +18,7 @@ def generate_launch_description():
 
     go_to_ball_server = Node(
             package=package_name,
-            executable='go_to_ball_server',
+            executable='go_to_ball_pose_server',
             parameters=[],
          )
 
