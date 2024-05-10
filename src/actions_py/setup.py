@@ -24,6 +24,7 @@ setup(
         'console_scripts': [
             'find_ball_server = actions_py.find_ball_server:main',
             'go_to_ball_server = actions_py.go_to_ball_server:main',
+            'go_to_ball_pose_server = actions_py.go_to_ball_pose_server:main',
             'go_to_ball_client = actions_py.go_to_ball_client:main'
         ],
     },

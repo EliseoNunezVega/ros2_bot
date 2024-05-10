@@ -16,14 +16,21 @@ def generate_launch_description():
             parameters=[],
          )
 
-    go_to_ball_server = Node(
-            package=package_name,
-            executable='go_to_ball_server',
-            parameters=[],
-         )
+    # go_to_ball_server = Node(
+    #         package=package_name,
+    #         executable='go_to_ball_server',
+    #         parameters=[],
+    #      )
+
+    go_to_ball_pose_server = Node(
+        package=package_name,
+        executable='go_to_ball_pose_server',
+        parameters=[],
+        )
 
     return LaunchDescription([
         find_ball_server,
-        go_to_ball_server,
+        go_to_ball_pose_server
+        # go_to_ball_server,
         # twist_stamper
     ])
