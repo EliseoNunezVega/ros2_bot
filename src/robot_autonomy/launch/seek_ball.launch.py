@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetParameter
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument
 
@@ -44,6 +44,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        SetParameter(name='use_sim_time', value=True),
         find_ball_server,
         go_to_ball_server,
         detect_ball,

@@ -3,7 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetParameter
 
 
 def generate_launch_description():
@@ -20,6 +20,7 @@ def generate_launch_description():
 
   ld = LaunchDescription()
 
+  ld.add_action(SetParameter(name='use_sim_time', value=True))
   # Add the commands to the launch description
   ld.add_action(autonomy_node_cmd)
 

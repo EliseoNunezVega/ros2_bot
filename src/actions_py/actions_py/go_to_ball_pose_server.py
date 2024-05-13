@@ -1,19 +1,22 @@
 import rclpy
 from rclpy.action import ActionServer
+import rclpy.duration
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.node import Node
 from sensor_msgs.msg        import Image
-from geometry_msgs.msg      import Point, PoseStamped
+from geometry_msgs.msg      import Point
 from cv_bridge              import CvBridge, CvBridgeError
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Quaternion
 import time
 import actions_py.process_image as proc
 from nav2_simple_commander.robot_navigator import BasicNavigator
+import tf2_ros
 
 from action_interfaces.action import GoToBall
 from turtle_tf2_py.turtle_tf2_broadcaster import quaternion_from_euler
-
+from tf2_geometry_msgs import PoseStamped
+from tf2_msgs.msg import TFMessage
 import math
 import numpy as np
 
@@ -57,7 +60,10 @@ class GoToBallServer(Node):
 
         self.image_sub = self.create_subscription(Point,"/detected_ball_3d",self.detection_callback,callback_group=self.cb_group_, qos_profile=rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value)
         self.msg_publisher = self.create_publisher(Twist, '/cmd_vel', 40)
+        self.pose_publisher = self.create_publisher(PoseStamped, '/goal_pose_autonomy', 10)
+        self.cam_pose_publisher = self.create_publisher(PoseStamped, "/camera_frame_pose", 10)
         self.msg_timer = self.create_timer(0.1, self.send_message, callback_group=self.cb_group_ )
+        self.map_pose_sub = self.create_subscription(TFMessage, "/tf", self.tf_callback, callback_group=self.cb_group_,qos_profile=rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value )
 
         self.ball_found  = False
         self.desired_z_distance = 0.1
@@ -67,7 +73,20 @@ class GoToBallServer(Node):
         self.zP = 0.4
         self.first_pose = True
 
+        self.current_robot_rotation = Quaternion()
+        self.current_rotation_found = False
+
+        self.tfBuffer = tf2_ros.Buffer()
+        self.listener = tf2_ros.TransformListener(self.tfBuffer, self)
+
         self.msg = Twist()
+
+    def tf_callback(self, data):
+        if self.ball_found:
+            for transform in data.transforms:
+                if transform.header.frame_id == "map":
+                    self.current_robot_rotation = transform.transform.rotation
+                    self.current_rotation_found = True
 
     def send_message(self):
         self.msg_publisher.publish(self.msg)
@@ -82,29 +101,42 @@ class GoToBallServer(Node):
 
     def execute_callback(self, goal_handle):
         result = GoToBall.Result()
-        
+
         pose = PoseStamped()
-        pose.header.frame_id = "camera_link"
-        pose.pose.position.x = 0.80#self.ball_coordinates.x
-        pose.pose.position.y = 0.4#self.ball_coordinates.y
-        pose.pose.position.z = 0.0#self.ball_coordinates.z
+        pose.header.frame_id = "camera_link_optical"
+        pose.pose.position.x = self.ball_coordinates.x
+        pose.pose.position.y = self.ball_coordinates.y
+        pose.pose.position.z = self.ball_coordinates.z
+
+        while not self.current_rotation_found:
+            pass
+
         (x, y, z, w) = quaternion_from_euler(0.0, 0.0, 0.0)
-        pose.pose.orientation.x = x
-        pose.pose.orientation.y = y
-        pose.pose.orientation.z = z
-        pose.pose.orientation.w = w
+        pose.pose.orientation.x = self.current_robot_rotation.x
+        pose.pose.orientation.y = self.current_robot_rotation.y
+        pose.pose.orientation.z = self.current_robot_rotation.z
+        pose.pose.orientation.w = self.current_robot_rotation.w
         pose.header.stamp = self.get_clock().now().to_msg()
 
+        self.cam_pose_publisher.publish(pose)
+        transformed_pose = self.tfBuffer.transform(pose, "map", timeout=rclpy.duration.Duration(seconds=3.0))
+        self.pose_publisher.publish(transformed_pose)
 
-        self.navigator.goToPose(pose)
+        self.get_logger().info(f'Goal pose: {transformed_pose}')
+
+        if self.ball_found:
+            self.ball_found = False
+            self.navigator.goToPose(transformed_pose)
 
         while not self.navigator.isTaskComplete():
             feedback = self.navigator.getFeedback()
-            self.get_logger().info(f'Goal pose: {pose}')
-        
+            self.get_logger().info(f'Goal pose: {transformed_pose}')
+
+        self.get_logger().info("GOOAAAL REACHED")
+
         self.first_pose = True
         result.at_ball = True
-    
+
         goal_handle.succeed()
 
         return result
@@ -117,7 +149,7 @@ def main(args=None):
 
     # Setting up initial pose
     initial_pose = PoseStamped()
-    initial_pose.header.frame_id = "camera_link"
+    initial_pose.header.frame_id = "map"
     initial_pose.pose.position.x = 0.0
     initial_pose.pose.position.y = 0.0
     initial_pose.pose.position.z = 0.0
