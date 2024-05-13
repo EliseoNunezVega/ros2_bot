@@ -63,7 +63,7 @@ class GoToBallServer(Node):
         self.pose_publisher = self.create_publisher(PoseStamped, '/goal_pose_autonomy', 10)
         self.cam_pose_publisher = self.create_publisher(PoseStamped, "/camera_frame_pose", 10)
         self.msg_timer = self.create_timer(0.1, self.send_message, callback_group=self.cb_group_ )
-        self.map_pose_sub = self.create_subscription(TFMessage, "/tf", self.tf_callback, callback_group=self.cb_group_,qos_profile=rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value )
+        # self.map_pose_sub = self.create_subscription(TFMessage, "/tf", self.tf_callback, callback_group=self.cb_group_,qos_profile=rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value )
 
         self.ball_found  = False
         self.desired_z_distance = 0.1
@@ -108,18 +108,24 @@ class GoToBallServer(Node):
         pose.pose.position.y = self.ball_coordinates.y
         pose.pose.position.z = self.ball_coordinates.z
 
-        while not self.current_rotation_found:
-            pass
-
         (x, y, z, w) = quaternion_from_euler(0.0, 0.0, 0.0)
-        pose.pose.orientation.x = self.current_robot_rotation.x
-        pose.pose.orientation.y = self.current_robot_rotation.y
-        pose.pose.orientation.z = self.current_robot_rotation.z
-        pose.pose.orientation.w = self.current_robot_rotation.w
+        pose.pose.orientation.x = x#trans.transform.rotation.x
+        pose.pose.orientation.y = y#trans.transform.rotation.y
+        pose.pose.orientation.z = z#trans.transform.rotation.z
+        pose.pose.orientation.w = w#trans.transform.rotation.w
+
+
         pose.header.stamp = self.get_clock().now().to_msg()
 
         self.cam_pose_publisher.publish(pose)
         transformed_pose = self.tfBuffer.transform(pose, "map", timeout=rclpy.duration.Duration(seconds=3.0))
+
+        trans = self.tfBuffer.lookup_transform("map", "base_link",  rclpy.time.Time())
+        transformed_pose.pose.orientation.x = trans.transform.rotation.x
+        transformed_pose.pose.orientation.y = trans.transform.rotation.y
+        transformed_pose.pose.orientation.z = trans.transform.rotation.z
+        transformed_pose.pose.orientation.w = trans.transform.rotation.w
+
         self.pose_publisher.publish(transformed_pose)
 
         self.get_logger().info(f'Goal pose: {transformed_pose}')
