@@ -63,6 +63,7 @@ class GoToBallServer(Node):
         self.pose_publisher = self.create_publisher(PoseStamped, '/goal_pose_autonomy', 10)
         self.cam_pose_publisher = self.create_publisher(PoseStamped, "/camera_frame_pose", 10)
         self.msg_timer = self.create_timer(0.1, self.send_message, callback_group=self.cb_group_ )
+        self.msg_timer.cancel()
         # self.map_pose_sub = self.create_subscription(TFMessage, "/tf", self.tf_callback, callback_group=self.cb_group_,qos_profile=rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value )
 
         self.ball_found  = False
@@ -97,6 +98,7 @@ class GoToBallServer(Node):
             self.ball_coordinates = data
             self.ball_found = True
             self.first_pose = False
+            self.msg_timer.reset()
 
 
     def execute_callback(self, goal_handle):
