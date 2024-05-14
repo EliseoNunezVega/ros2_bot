@@ -3,17 +3,37 @@
 
 import cv2
 import numpy as np;
+from os import getcwd
 
 
 def find_circles(image, tuning_params):
 
     blur = 5
+    xml_path = getcwd() + '/src/get_ball_coordinates/get_ball_coordinates/tennis_ball_classifier.xml'
+    classifier = cv2.CascadeClassifier(xml_path)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    x_min   = tuning_params["x_min"]
-    x_max   = tuning_params["x_max"]
-    y_min   = tuning_params["y_min"]
-    y_max   = tuning_params["y_max"]
-    
+    try:
+        rects = classifier.detectMultiScale(gray_image, scaleFactor=1.1, minNeighbors=9)
+        for (x, y, w, h) in rects: 
+            cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), thickness=2) 
+        
+        if len(rects) > 0:
+            x_min   = x
+            x_max   = x + w
+            y_min   = y
+            y_max   = y + h 
+        else:
+            x_min   = tuning_params["x_min"]
+            x_max   = tuning_params["x_max"]
+            y_min   = tuning_params["y_min"]
+            y_max   = tuning_params["y_max"]
+    except Exception as e:
+        x_min   = tuning_params["x_min"]
+        x_max   = tuning_params["x_max"]
+        y_min   = tuning_params["y_min"]
+        y_max   = tuning_params["y_max"]
+
     search_window = [x_min, y_min, x_max, y_max]
 
     working_image    = cv2.blur(image, (blur, blur))
@@ -90,7 +110,7 @@ def find_circles(image, tuning_params):
 
     keypoints = [k for k in keypoints if k.size > size_min_px and k.size < size_max_px]
 
-    
+    gray_image
     # Set up main output image
     line_color=(0,0,255)
 
@@ -106,6 +126,7 @@ def find_circles(image, tuning_params):
 
 
     keypoints_normalised = [normalise_keypoint(working_image, k) for k in keypoints]
+
 
     return keypoints_normalised, out_image, tuning_image
 

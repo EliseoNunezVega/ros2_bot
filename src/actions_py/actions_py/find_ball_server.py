@@ -43,7 +43,7 @@ class FindBallServer(Node):
     def send_message(self):
         self.msg_publisher.publish(self.msg)
         if self.ball_found:
-            self.msg_timer.destroy()
+            self.msg_timer.cancel()
             self.first_time = True
 
 
@@ -56,6 +56,9 @@ class FindBallServer(Node):
 
     def execute_callback(self, goal_handle):
         self.get_logger().info('Scanning for ball...')
+        
+        if self.msg_timer.is_canceled:
+            self.msg_timer.reset()
         result = FindBall.Result()
 
         if self.ball_found:

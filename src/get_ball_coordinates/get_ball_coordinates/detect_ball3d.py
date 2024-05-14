@@ -29,8 +29,8 @@ class DetectBall3d(Node):
         self.ball3d_pub  = self.create_publisher(Point,"/detected_ball_3d",1)
         self.ball_marker_pub  = self.create_publisher(Marker,"/ball_3d_marker",1)
 
-        self.declare_parameter("h_fov",1.22)
-        self.declare_parameter("ball_radius",0.033)
+        self.declare_parameter("h_fov",1.23)
+        self.declare_parameter("ball_radius",0.0334)
         self.declare_parameter("aspect_ratio",4.0/3.0)
         self.declare_parameter("camera_frame",'camera_link_optical')
 

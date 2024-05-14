@@ -44,7 +44,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        SetParameter(name='use_sim_time', value=True),
+        SetParameter(name='use_sim_time', value=False),
         find_ball_server,
         go_to_ball_server,
         detect_ball,

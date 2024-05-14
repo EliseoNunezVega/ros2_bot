@@ -59,7 +59,7 @@ class GoToBallServer(Node):
             callback_group=self.cb_group_)
 
         self.image_sub = self.create_subscription(Point,"/detected_ball_3d",self.detection_callback,callback_group=self.cb_group_, qos_profile=rclpy.qos.QoSPresetProfiles.SENSOR_DATA.value)
-        self.msg_publisher = self.create_publisher(Twist, '/cmd_vel', 40)
+        # self.msg_publisher = self.create_publisher(Twist, '/cmd_vel', 40)
         self.pose_publisher = self.create_publisher(PoseStamped, '/goal_pose_autonomy', 10)
         self.cam_pose_publisher = self.create_publisher(PoseStamped, "/camera_frame_pose", 10)
         self.msg_timer = self.create_timer(0.1, self.send_message, callback_group=self.cb_group_ )
@@ -90,7 +90,8 @@ class GoToBallServer(Node):
                     self.current_rotation_found = True
 
     def send_message(self):
-        self.msg_publisher.publish(self.msg)
+        pass
+        # self.msg_publisher.publish(self.msg)
 
     def detection_callback(self, data):
         # Process incoming images
