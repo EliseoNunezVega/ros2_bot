@@ -14,20 +14,23 @@ def find_circles(image, tuning_params):
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     try:
-        rects = classifier.detectMultiScale(gray_image, scaleFactor=1.1, minNeighbors=9)
-        for (x, y, w, h) in rects: 
-            cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), thickness=2) 
+        rects = classifier.detectMultiScale(gray_image, scaleFactor=1.1, minNeighbors=6)
+        # for (x, y, w, h) in rects: 
+        #     cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), thickness=2) 
         
         if len(rects) > 0:
-            x_min   = x
-            x_max   = x + w
-            y_min   = y
-            y_max   = y + h 
+            (x, y, w, h) = rects[0]
+            width = image.shape[1]
+            height = image.shape[0]
+            x_min   = x/width * 100
+            x_max   = ((x + w)/width) * 100
+            y_min   = (y/height)*100
+            y_max   = ((y + h)/height)*100 
         else:
-            x_min   = tuning_params["x_min"]
-            x_max   = tuning_params["x_max"]
-            y_min   = tuning_params["y_min"]
-            y_max   = tuning_params["y_max"]
+            x_min   = 0
+            x_max   = 0
+            y_min   = 0
+            y_max   = 0
     except Exception as e:
         x_min   = tuning_params["x_min"]
         x_max   = tuning_params["x_max"]
